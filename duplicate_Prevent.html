@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LIFF to SHEET</title>
+  <!-- font-awesome@6.2.0 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+  <!-- jquery@3.6.0 -->
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.3/font/bootstrap-icons.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai');
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Noto Sans Thai', sans-serif;
+    }
+
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      min-height: 100vh;
+      background: rgb(252, 233, 233);
+      background: linear-gradient(0deg, rgba(252, 233, 233, 1) 0%, rgba(224, 244, 241, 1) 26%, rgba(255, 255, 255, 1) 71%);
+      -webkit-background-size: cover;
+      -moz-background-size: cover;
+      -o-background-size: cover;
+      flex-direction: column;
+    }
+
+    .list {
+      background-color: #ffffff;
+      padding: 1.8em 1.2em;
+      box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+      border-radius: 0.6em;
+    }
+
+    .qBox {
+      border: solid 2px #525150 !important;
+      padding: 1rem;
+      margin: 0 10px;
+      border-radius: 13px;
+      max-width: 100%;
+      margin: auto;
+    }
+
+    label {
+      color: black;
+    }
+
+    .container {
+      max-width: 600px;
+    }
+
+    button[type="submit"] {
+      font-family: 'Noto Sans Thai', sans-serif;
+      box-sizing: border-box;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      width: 100%;
+      margin: 0 auto;
+      margin-top: 10px;
+      padding: 3%;
+      background: #b26bc2;
+      border: none;
+      border-radius: 5px;
+      font-size: 17px;
+      border-top-style: none;
+      border-right-style: none;
+      border-left-style: none;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    button[type="submit"]:hover {
+      background: #FFCE00;
+      color: #000;
+    }
+  </style>
+</head>
+
+<body>
+  <center class="mb-4">
+    <img src="https://lh3.googleusercontent.com/d/1ZMI9FTcErAj1N8vh0viy3rAPnxZ7Zsky" class="mt-4"
+      style="width:200px; height:auto; padding-bottom: 10px;">
+    <h2>Registration System + LIFF</h2>
+    <h5 class="text-center text-danger">สื่อ และนวัตกรรมครูสิทธิชาติ สิทธิ</h5>
+  </center>
+
+  <div class="container list">
+    <form id="myForm" class="needs-validation my-4" novalidate>
+      <div class="row justify-content-start g-3">
+        <div class="col-12">
+          <label for="name">
+            <i class="fa-solid fa-user"></i> ชื่อ-สกุล</label>
+          <input type="text" id="name" name="name" class="form-control" placeholder="ชื่อ-สกุล" required>
+          <div class="invalid-feedback">
+            กรุณากรอกชื่อ-สกุล
+          </div>
+        </div>
+        <div class="col-12">
+          <label for="phone">
+            <i class="fa-solid fa-phone"></i> เบอร์โทร</label>
+          <input type="text" id="phone" name="phone" maxlength="10" class="form-control" placeholder="กรุณากรอกเบอร์โทร"
+            required>
+          <div class="invalid-feedback">
+            กรุณากรอกเบอร์โทร
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label for="place">
+            <i class="fa-solid fa-envelope"></i> อีเมล</label>
+          <input type="email" id="place" name="place" class="form-control" placeholder="กรุณากรอก Email" required>
+          <div class="invalid-feedback">
+            กรุณากรอกอีเมล
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label for="device">
+            <i class="fa-regular fa-circle-user"></i> กำหนดชื่อเข้าใช้งาน (Username)</label>
+          <input type="text" id="device" name="device" class="form-control" placeholder="กรุณากรอก Username" required>
+          <div class="invalid-feedback">
+            กรุณาตั้ง Username ด้วยครับ
+          </div>
+        </div>
+        <div class="col-12">
+          <label for="problem">
+            <i class="fa-solid fa-lock"></i> รหัสผ่าน (Password)</label>
+          <input type="password" id="problem" name="problem" class="form-control"
+            placeholder="ตัวแรกให้ขึ้นต้นด้วยตัวอักษรภาษาอังกฤษ" required>
+          <div class="invalid-feedback">
+            กรุณาตั้งรหัสผ่านด้วยครับ
+          </div>
+        </div>
+
+        <div class="col-12">
+          <label for="place">
+            <i class="fa-solid fa-file"></i> อัพโหลดไฟล์</label>
+          <input type="file" id="file" class="form-control" required>
+          <div class="invalid-feedback">
+            กรุณาอัพโหลดสลิปโอนเงิน
+          </div>
+        </div>
+
+        <div class="col-12 text-center">
+          <button type="submit" class="btn btn-warning w-100"><i class="bi bi-send-fill"></i>&nbsp;สมัครสมาชิก</button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <script>
+    const scriptUrl = 'https://script.google.com/macros/s/........./exec';
+    var uid;
+
+    $(document).ready(() => {
+      liff.init({
+        liffId: '1661008850XXXXX',
+        withLoginOnExternalBrowser: true
+      })
+      liff.ready.then(() => {
+        console.log('liff ready');
+      })
+    });
+
+    function checkDuplicatePhone(phone) {
+      return fetch('https://opensheet.elk.sh/SPREAD_SHEET_ID/SHEET_NAME')
+        .then(response => response.json())
+        .then(data => {
+          const phoneExists = data.some(entry => entry['TEL'] === phone);
+          return phoneExists;
+        });
+    }
+
+    function submit() {
+      $.LoadingOverlay('show');
+
+      // Read the selected file
+      const fileInput = $('#file')[0];
+      if (fileInput.files.length === 0) {
+        $.LoadingOverlay('hide');
+        alert('Please select a file.');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const fr = new FileReader();
+      fr.onload = function (e) {
+        const base64File = e.target.result.replace(/^.*,/, '');
+
+        let data = {
+          opt: 'savedata',
+          uid: liff.getDecodedIDToken().sub,
+          name: $('#name').val(),
+          phone: $('#phone').val(),
+          device: $('#device').val(),
+          problem: $('#problem').val(),
+          place: $('#place').val(),
+          file: base64File, // Add the Base64-encoded file to the data object
+        };
+
+        // Send the AJAX request with the file data
+        $.ajax({
+          method: "POST",
+          url: scriptUrl,
+          data: data,
+          dataType: 'json',
+          success: function (res) {
+            $.LoadingOverlay('hide');
+            if (res.status == 'success') {
+              // reset the form
+              $('#myForm')[0].reset();
+              return Swal.fire({
+                icon: 'success',
+                title: 'บันทึกข้อมูลเรียบร้อย',
+                allowOutsideClick: false,
+                confirmButtonText: 'ตกลง',
+              });
+            }
+            return Swal.fire({
+              icon: 'error',
+              title: 'เกิดข้อผิดพลาด',
+              allowOutsideClick: false,
+              confirmButtonText: 'ตกลง',
+            });
+          },
+          error: function (err) {
+            console.log(err);
+            $.LoadingOverlay('hide');
+            alert('บันทึกข้อมูลไม่สำเร็จ');
+          },
+        });
+      };
+      fr.readAsDataURL(file);
+    }
+
+    (() => {
+      'use strict'
+
+      // Fetch all the forms we want to apply custom Bootstrap validation styles to
+      const forms = document.querySelectorAll('.needs-validation');
+
+      // Loop over them and prevent submission
+      Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+          if (!form.checkValidity()) {
+            event.stopPropagation();
+            form.classList.add('was-validated');
+            $('#myForm').find(":invalid").first().focus();
+          } else {
+            const phone = $('#phone').val();
+            checkDuplicatePhone(phone).then(phoneExists => {
+              if (phoneExists) {
+                $.LoadingOverlay('hide');
+                return Swal.fire({
+                  icon: 'warning',
+                  title: 'เบอร์โทรนี้มีอยู่แล้วในระบบ',
+                  text: 'กรุณาใช้เบอร์โทรอื่น',
+                  allowOutsideClick: false,
+                  confirmButtonText: 'ตกลง',
+                });
+              } else {
+                submit();
+              }
+            }).catch(error => {
+              console.error('Error checking phone:', error);
+              $.LoadingOverlay('hide');
+              Swal.fire({
+                icon: 'error',
+                title: 'เกิดข้อผิดพลาด',
+                text: 'ไม่สามารถตรวจสอบเบอร์โทรได้',
+                allowOutsideClick: false,
+                confirmButtonText: 'ตกลง',
+              });
+            });
+          }
+        }, false);
+      })
+    })();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+    crossorigin="anonymous"></script>
+  <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+
+  <br />
+  <div class="text-center p-4 col-12 mt-4" style="background-color: rgba(0, 0, 0, 0.05);">
+    © 2023 Copyright | พัฒนาโดยครูสิทธิชาติ สิทธิ
+  </div>
+
+</body>
+
+</html>
