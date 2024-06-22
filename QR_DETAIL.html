@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Detail Page</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+  <!-- jQuery -->
+  <script src="https://code.jquery.com/jquery-3.6.0.js"></script>
+
+  <!-- Sweet Alert -->
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <!-- Loading Overlay -->
+  <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+
+  <!-- LIFF SDK --> 
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai');
+    * { box-sizing: border-box; font-family: 'Noto Sans Thai', sans-serif; }
+    body {
+        display: flex; align-items: center; justify-content: flex-start; min-height: 100vh;
+        background: linear-gradient(0deg, rgba(252,233,233,1) 0%, rgba(224,244,241,1) 26%, rgba(255,255,255,1) 71%);
+        flex-direction: column;
+    } 
+    .list {
+        background-color: #ffffff; padding: 1.8em 1.2em;
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px; border-radius: 0.6em;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div id="Showdata" class="mb-4">
+          <center><h1 style="color:red"><b><br/>ข้อมูลนักเรียน</b></h1></center>
+          <div id="dataWrapper"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      // Initialize LIFF
+      liff.init({ liffId: 'LINE_LIFF_ID' }).then(() => {
+        if (!liff.isLoggedIn()) {
+          liff.login();
+        } else {
+          liff.getProfile().then(profile => {
+            const userId = profile.userId;
+
+            // Fetch data from Google Sheets
+            $.getJSON('https://opensheet.elk.sh/SHEETID/SHEETNAME', function(data) {
+              if (data && data.length > 0) {
+                let content = '';
+                data.forEach(function(row) {
+                  if (row['Line UID'] === userId) {
+                     content += `<div class="card mb-3 mt-5">
+                                  <div class="row g-0">
+                                    <div class="col-md-6 p-3 d-flex flex-column align-items-center justify-content-center">
+                                      <img src="${profile.pictureUrl}" class="img-fluid rounded-circle mb-3" alt="profile image" style="width: 150px; height: 150px;">
+                                      <h5 class="card-title"><strong>Student Name :</strong> ${row['Student Name']}</h5>
+                                      <p class="card-text"><strong>Student ID :</strong> ${row['Student ID']}</p>
+                                      <p class="card-text"><strong>Classroom :</strong> ${row.Classroom}</p>
+                                    </div>
+                                    <div class="col-md-6 p-3 d-flex align-items-center justify-content-center">
+                                      <img src="${row.QR}" class="img-fluid rounded mb-3" alt="QR image" style="width: 250px; height: 250px;">
+                                    </div>
+                                  </div>
+                                </div>`;
+                  }
+                });
+                $('#dataWrapper').html(content);
+              } else {
+                $('#dataWrapper').html('<div class="alert alert-warning" role="alert">No data found!</div>');
+              }
+            });
+          }).catch(err => console.error(err));
+        }
+      }).catch(err => console.error(err));
+    });
+  </script>
+</body>
+</html>
