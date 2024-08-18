@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hangman</title>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <!-- Stylesheet -->
+  <?!= include('css') ?>
+</head>
+<body>
+
+  <center class="mb-4">
+    <img src="https://lh3.googleusercontent.com/d/1ZMI9FTcErAj1N8vh0viy3rAPnxZ7Zsky" class="mt-4" style="width:200px; height:auto; padding-bottom: 10px;">
+    <h5 class="text-center text-danger">สื่อ และนวัตกรรมครูสิทธิชาติ สิทธิ</h5>
+
+    <h2> HANGMAN GAME</h2>
+    <h4> PLANT ANATOMY</h4>
+  </center>
+
+  <!--- main container-->
+  <div class="container">
+        <center><h5 id="timer" class="text-danger mb-4">เหลือเวลาอีก: 01:00</h5></center>
+
+    <div id="options-container"></div>
+
+    <center>
+      <br/>
+      <div id="user-input-section">
+        <br/>
+        <h5>Hint</h5>
+        <div id="image-container"></div>
+        <div class="mt-5" id="dashes-container"></div>
+      </div>
+    </center>
+    <hr/>
+    <br/>
+    <h5>Hangman</h5>
+    <canvas id="canvas"></canvas>
+
+    <div id="letter-container" class="letter-container hide mt-5"></div>
+
+    <div id="new-game-container" class="new-game-popup hide">
+      <div id="result-text"></div>
+      <div id="result-text2"></div>
+      <button id="name-submit-button" type="button" onclick="savenameWin()" style="margin-top: 20px; display: none;">บันทึกข้อมูล</button>
+      <button id="new-game-button" style="margin-top: 20px;">เริ่มใหม่</button>
+    </div>
+  </div>
+
+  <script>
+    // Variables
+    const letterContainer = document.getElementById("letter-container");
+    const optionsContainer = document.getElementById("options-container");
+    const userInputSection = document.getElementById("user-input-section");
+    const imageContainer = document.getElementById("image-container");
+    const dashesContainer = document.getElementById("dashes-container");
+    const newGameContainer = document.getElementById("new-game-container");
+    const newGameButton = document.getElementById("new-game-button");
+    const nameSubmitButton = document.getElementById("name-submit-button");
+    const canvas = document.getElementById("canvas");
+    const resultText = document.getElementById("result-text");
+    const resultText2 = document.getElementById("result-text2");
+
+    let timer; // To hold the timer interval
+    let timeLeft = 60; // Time in seconds
+
+    // Fetch options from the JSON URL
+    async function fetchOptions() {
+      try {
+        const response = await fetch('https://opensheet.elk.sh/1jwhWwY0HmdiN2ZvjumhmKwDCG9iQWMoT5ImyQ1TanCw/options');
+        const data = await response.json();
+        options = transformData(data);
+        displayOptions();
+      } catch (error) {
+        console.error('Error fetching options:', error);
+      }
+    }
+
+    // Transform the fetched data into the required format
+    function transformData(data) {
+      const transformedOptions = { root: [], stem: [], leaf: [] };
+      data.forEach(item => {
+        if (transformedOptions[item.category]) {
+          transformedOptions[item.category].push({ word: item.word, image: item.image });
+        }
+      });
+      return transformedOptions;
+    }
+
+    fetchOptions();
+
+    // Track wins and attempts
+    let winCount = 0;
+    let count = 0;
+    let chosenWord = "";
+
+    // Display the options as buttons
+    const displayOptions = () => {
+      optionsContainer.innerHTML += ` `;
+      let buttonCon = document.createElement("div");
+      for (let value in options) {
+        buttonCon.innerHTML += `<button class="options" onclick="generateWord('${value}')">${value}</button>`;
+      }
+      optionsContainer.appendChild(buttonCon);
+    };
+
+    // Disable all buttons after selection
+    const blocker = () => {
+      let optionsButtons = document.querySelectorAll(".options");
+      let letterButtons = document.querySelectorAll(".letters");
+      // disable all options
+      optionsButtons.forEach((button) => {
+        button.disabled = true;
+      });
+
+      // disable all letters
+      letterButtons.forEach((button) => {
+        button.disabled = true;
+      });
+      newGameContainer.classList.remove("hide");
+    };
+
+    // Generate word based on selected category
+    const generateWord = (optionValue) => {
+      startTimer(); // Start the timer when a category is chosen
+
+      let optionsButtons = document.querySelectorAll(".options");
+      // If optionValue matches the button innerText then highlight the button
+      optionsButtons.forEach((button) => {
+        if (button.innerText.toLowerCase() === optionValue) {
+          button.classList.add("active");
+        }
+        button.disabled = true;
+      });
+
+      // Initially hide letters, clear previous word
+      letterContainer.classList.remove("hide");
+      dashesContainer.innerText = "";
+      imageContainer.innerText = "";
+
+      let optionArray = options[optionValue];
+      // Choose random word
+      let chosenOption = optionArray[Math.floor(Math.random() * optionArray.length)];
+      chosenWord = chosenOption.word.toUpperCase();
+
+      // Replace every letter with span containing dash
+      let displayItem = chosenWord.replace(/./g, '<span class="dashes">_</span>');
+
+      // Display each element as span
+      dashesContainer.innerHTML = displayItem;
+
+      // Display the image
+      let imageElement = document.createElement("img");
+      imageElement.src = chosenOption.image;
+      imageElement.alt = chosenOption.word;
+      imageElement.classList.add("img-fluid");
+      imageElement.style.marginTop = "20px";
+      imageElement.style.maxWidth = "100%";
+      imageContainer.appendChild(imageElement);
+    };
+
+    // Start the countdown timer
+    const startTimer = () => {
+      const timerDisplay = document.getElementById("timer");
+      timer = setInterval(() => {
+        timeLeft--;
+        let minutes = Math.floor(timeLeft / 60);
+        let seconds = timeLeft % 60;
+        seconds = seconds < 10 ? '0' + seconds : seconds;
+        timerDisplay.textContent = `เหลือเวลาอีก: ${minutes}:${seconds}`;
+        
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          timeOut();
+        }
+      }, 1000);
+    };
+
+    // Timeout function
+    const timeOut = () => {
+      resultText.innerHTML = `<h2 class='lose-msg'><b>Time's Up! You Lose! 😂</b></h2><center><p>คำนี้คือคำว่า <span id="wordloss">${chosenWord}</span></p></center>`;
+      resultText2.innerHTML = "";
+      newGameButton.style.display = "block"; // Show the new game button
+      nameSubmitButton.style.display = "none"; // Hide the submit button
+      blocker();
+    };
+
+    // Initial Function (Called when page loads/user presses new game)
+    const initializer = () => {
+      winCount = 0;
+      count = 0;
+      timeLeft = 60; // Reset the timer
+      clearInterval(timer); // Clear any existing timer
+
+      // Initially erase all content and hide letters and new game button
+      dashesContainer.innerHTML = "";
+      optionsContainer.innerHTML = "";
+      imageContainer.innerHTML = "";
+      letterContainer.classList.add("hide");
+      newGameContainer.classList.add("hide");
+      letterContainer.innerHTML = "";
+      nameSubmitButton.style.display = "none"; // Hide the submit button initially
+
+      // For creating letter buttons
+      for (let i = 65; i < 91; i++) {
+        let button = document.createElement("button");
+        button.classList.add("letters");
+        // Number to ASCII[A-Z]
+        button.innerText = String.fromCharCode(i);
+        // character button click
+        button.addEventListener("click", () => {
+          let charArray = chosenWord.split("");
+          let dashes = document.getElementsByClassName("dashes");
+          // if array contains clicked value replace the matched dash with letter else draw on canvas
+          if (charArray.includes(button.innerText)) {
+            charArray.forEach((char, index) => {
+              // if character in array is same as clicked button
+              if (char === button.innerText) {
+                // replace dash with letter
+                dashes[index].innerText = char;
+                // increment counter
+                winCount += 1;
+                // if winCount equals word length
+                if (winCount == charArray.length) {
+                  clearInterval(timer); // Stop the timer on win
+                  resultText.innerHTML = `<h2 class='win-msg'><b>You Win ! 🎉 </b></h2><p>คำนี้คือคำว่า <span id="wordwin">${chosenWord}</span></p>`;
+                  resultText2.innerHTML = `<center><input type="text" class="form-control mb-2 text-center" id="w1" placeholder="Player Name"></center>`;
+                  nameSubmitButton.style.display = "block"; // Show the submit button
+                  newGameButton.style.display = "none"; // Hide the new game button
+                  blocker();
+                }
+              }
+            });
+          } else {
+            // lose count
+            count += 1;
+            // for drawing man
+            drawMan(count);
+            // Count==6 because head,body,left arm, right arm,left leg,right leg
+            if (count == 6) {
+              clearInterval(timer); // Stop the timer on lose
+              resultText.innerHTML = `<h2 class='lose-msg'><b>You Lose ! 😂 </b></h2><p>คำนี้คือคำว่า <span id="wordloss">${chosenWord}</span></p>`;
+              resultText2.innerHTML = "";
+              newGameButton.style.display = "block"; // Show the new game button
+              nameSubmitButton.style.display = "none"; // Hide the submit button
+              blocker();
+            }
+          }
+          // disable clicked button
+          button.disabled = true;
+        });
+        letterContainer.append(button);
+      }
+
+      displayOptions();
+      // Call to canvasCreator (for clearing previous canvas and creating initial canvas)
+      let { initialDrawing } = canvasCreator();
+      initialDrawing();
+    };
+
+    // Canvas
+    const canvasCreator = () => {
+      let context = canvas.getContext("2d");
+      context.beginPath();
+      context.strokeStyle = "#000";
+      context.lineWidth = 2;
+
+      // For drawing lines
+      const drawLine = (fromX, fromY, toX, toY) => {
+        context.moveTo(fromX, fromY);
+        context.lineTo(toX, toY);
+        context.stroke();
+      };
+
+      const head = () => {
+        context.beginPath();
+        context.arc(70, 30, 10, 0, Math.PI * 2, true);
+        context.stroke();
+      };
+
+      const body = () => {
+        drawLine(70, 40, 70, 80);
+      };
+
+      const leftArm = () => {
+        drawLine(70, 50, 50, 70);
+      };
+
+      const rightArm = () => {
+        drawLine(70, 50, 90, 70);
+      };
+
+      const leftLeg = () => {
+        drawLine(70, 80, 50, 110);
+      };
+
+      const rightLeg = () => {
+        drawLine(70, 80, 90, 110);
+      };
+
+      // initial frame
+      const initialDrawing = () => {
+        // clear canvas
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        // bottom line
+        drawLine(10, 130, 130, 130);
+        // left line
+        drawLine(10, 10, 10, 131);
+        // top line
+        drawLine(10, 10, 70, 10);
+        // small top line
+        drawLine(70, 10, 70, 20);
+      };
+
+      return { initialDrawing, head, body, leftArm, rightArm, leftLeg, rightLeg };
+    };
+
+    // draw the man
+    const drawMan = (count) => {
+      let { head, body, leftArm, rightArm, leftLeg, rightLeg } = canvasCreator();
+      switch (count) {
+        case 1:
+          head();
+          break;
+        case 2:
+          body();
+          break;
+        case 3:
+          leftArm();
+          break;
+        case 4:
+          rightArm();
+          break;
+        case 5:
+          leftLeg();
+          break;
+        case 6:
+          rightLeg();
+          break;
+        default:
+          break;
+      }
+    };
+
+    // New Game
+    newGameButton.addEventListener("click", initializer);
+    window.onload = initializer;
+
+    nameSubmitButton.addEventListener("click", initializer);
+    window.onload = initializer;
+
+    function savenameWin(){
+      var nameplayer = document.getElementById("w1").value; //ชนะ
+      var word = document.getElementById("wordwin").innerText;
+      var score = "Win";
+      if(nameplayer === ""){
+        Swal.fire({ 
+          position: 'top-center', 
+          icon: 'warning', 
+          title: 'กรอกชื่อผู้เล่นด้วยครับ', 
+          showConfirmButton: false, 
+          timer: 1500 
+        });
+      } else {
+        google.script.run.savename(nameplayer, score, word);
+        document.getElementById("w1").value = "";
+        Swal.fire({ 
+          position: 'top-center', 
+          icon: 'success', 
+          title: 'บันทึกเรียบร้อยแล้ว', 
+          showConfirmButton: false, 
+          timer: 1500 
+        });
+      }
+    }
+  </script>
+
+  <!-- Bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+  <!-- Sweet alert -->
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<footer class="text-center text-lg-start bg-light text-muted" style="  position: static;left: 0;bottom: 0;width: 100%;">
+  <div class="text-center p-4" style="background-color: rgba(0, 0, 0, 0.05);">
+    © <script>document.write(new Date().getFullYear());</script> Copyright | พัฒนาโดยครูสิทธิชาติ สิทธิ
+  </div>
+</footer>
+
+</body>
+</html>
